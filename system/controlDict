@@ -16,13 +16,15 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         0.034;
+endTime         0.1;
 
-deltaT          5e-04;
+deltaT          1e-04;
 
-writeControl    timeStep;
+//writeControl    timeStep;
+writeControl    adjustableRunTime;
 
-writeInterval   50;
+//writeInterval   50;
+writeInterval   0.01;
 
 purgeWrite      0;
 

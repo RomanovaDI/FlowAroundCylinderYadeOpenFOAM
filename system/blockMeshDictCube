@@ -1,0 +1,134 @@
+FoamFile
+{
+	version     2.0;
+	format      ascii;
+	class       dictionary;
+	object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//meshGenApp blockMesh;
+convertToMeters 1;
+
+//vertices #codeStream
+//{
+//	codeInclude
+//	#{
+//		#include "pointField.H"
+//	#};
+//
+//	code
+//	#{
+//		pointField points(32);
+//		points[0]  = point( 0.05,       0.,        -0.2);
+//		points[1]  = point( 0.1,        0.,        -0.2);
+//		points[2]  = point( 0.2,        0.,        -0.2);
+//		points[3]  = point( 0.2,        0.0707107, -0.2);
+//		points[4]  = point( 0.0707107,  0.0707107, -0.2);
+//		points[5]  = point( 0.0353553,  0.0353553, -0.2);
+//		points[6]  = point( 0.2,        0.2,       -0.2);
+//		points[7]  = point( 0.0707107,  0.2,       -0.2);
+//		points[8]  = point( 0.,         0.2,       -0.2);
+//		points[9]  = point( 0.,         0.1,       -0.2);
+//		points[10] = point( 0.,         0.05,      -0.2);
+//		points[11] = point(-0.05,       0.,        -0.2);
+//		points[12] = point(-0.1,        0.,        -0.2);
+//		points[13] = point(-0.2,        0.,        -0.2);
+//		points[14] = point(-0.2,        0.0707107, -0.2);
+//		points[15] = point(-0.0707107,  0.0707107, -0.2);
+//		points[16] = point(-0.0353553,  0.0353553, -0.2);
+//		points[17] = point(-0.2,        0.2,       -0.2);
+//		points[18] = point(-0.0707107,  0.2,       -0.2);
+//		points[19] = point( 0.2,       -0.0707107, -0.2);
+//		points[20] = point( 0.0707107, -0.0707107, -0.2);
+//		points[21] = point( 0.0353553, -0.0353553, -0.2);
+//		points[22] = point( 0.2,       -0.2,       -0.2);
+//		points[23] = point( 0.0707107, -0.2,       -0.2);
+//		points[24] = point( 0.,        -0.2,       -0.2);
+//		points[25] = point( 0.,        -0.1,       -0.2);
+//		points[26] = point( 0.,        -0.05,      -0.2);
+//		points[27] = point(-0.2,       -0.0707107, -0.2);
+//		points[28] = point(-0.0707107, -0.0707107, -0.2);
+//		points[29] = point(-0.0353553, -0.0353553, -0.2);
+//		points[30] = point(-0.2,       -0.2,       -0.2);
+//		points[31] = point(-0.0707107, -0.2,       -0.2);
+//
+//		// Duplicate z points
+//		label sz = points.size();
+//		points.setSize(2*sz);
+//		for (label i = 0; i < sz; i++)
+//		{
+//			const point& pt = points[i];
+//			points[i+sz] = point(pt.x(), pt.y(), -pt.z());
+//		}
+//
+//		os  << points;
+//	#};
+//};
+
+vertices
+(
+	(0          0          0 )
+	(0.4        0          0 )
+	(0.4        0.4        0 )
+	(0          0.4        0 )
+	(0          0          0.4)
+	(0.4        0          0.4)
+	(0.4        0.4        0.4)
+	(0          0.4        0.4)
+);
+
+
+blocks
+(
+	hex (0 1 2 3 4 5 6 7) (40 40 40) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+	outlet
+	{
+		type cyclic;
+		//type cyclicAMI;
+		neighbourPatch inlet;
+		//transform translational;
+		//separationVector (-0.2 0 0);
+		faces
+		(
+			(1 2 6 5)
+		);
+	}
+	wall
+	{
+		type wall;
+		faces
+		(
+			(4 5 6 7)
+			(7 6 2 3)
+			(3 2 1 0)
+			(0 1 4 5)
+		);
+	}
+	inlet
+	{
+		type cyclic;
+		//type cyclicAMI;
+		neighbourPatch outlet;
+		//transform translational;
+		//separationVector (0.2 0 0);
+		faces
+		(
+			(4 7 3 0)
+		);
+	}
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

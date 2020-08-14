@@ -125,8 +125,8 @@ class simulation():
 		O.materials.append(mat2)
 
 		epsilon = 1e-08
-		minval = -0.2 + epsilon
-		maxval = 0.2 - epsilon
+		minval = 0 + epsilon
+		maxval = 0.4 - epsilon
 		#wall coords, use facets for wall BC:
 		v0 = Vector3(minval, minval, minval)
 		v1 = Vector3(minval,minval,maxval)
@@ -165,7 +165,8 @@ class simulation():
 		O.bodies.append(b)
 
 		#spheres
-		mn, mx= Vector3(minval + epsilon, minval + epsilon, minval + epsilon), Vector3(maxval - epsilon, maxval - epsilon, maxval - epsilon)
+		#mn, mx= Vector3(minval + epsilon, minval + epsilon, minval + epsilon), Vector3(maxval - epsilon, maxval - epsilon, maxval - epsilon)
+		mn, mx= Vector3(minval + epsilon, minval + epsilon, minval + epsilon), Vector3(-0.06, maxval - epsilon, maxval - epsilon)
 		sp = pack.SpherePack();
 		sp.makeCloud(mn,mx,rMean=0.00075,rRelFuzz=0.10, num=numspheres)
 		O.bodies.append([sphere(center,rad,material='spheremat') for center,rad in sp])
@@ -180,27 +181,45 @@ class simulation():
 		newton=NewtonIntegrator(damping=0.0, gravity = (0.0 ,0.0, 0.0))
 		# add small damping in case of stability issues.. ~ 0.1 max, also note : If gravity is needed, set it in constant/g dir.
 
+		#O.dynDt = False
+		#O.dt=1e-4
+
 		O.engines=[
+			PyRunner(command='sim.printState(0)', iterPeriod= 1, label='outputMessage'),
 			ForceResetter(),
+			PyRunner(command='sim.printState(1)', iterPeriod= 1, label='outputMessage'),
 			InsertionSortCollider([Bo1_Sphere_Aabb(),Bo1_Facet_Aabb()], allowBiggerThanPeriod=True),
+			PyRunner(command='sim.printState(2)', iterPeriod= 1, label='outputMessage'),
 			InteractionLoop(
 				[Ig2_Sphere_Sphere_ScGeom(),Ig2_Facet_Sphere_ScGeom()],
 				[Ip2_FrictMat_FrictMat_FrictPhys()],
 				[Law2_ScGeom_FrictPhys_CundallStrack()]
 			),
+			PyRunner(command='sim.printState(3)', iterPeriod= 1, label='outputMessage'),
+			PyRunner(command='sim.printDt()', iterPeriod= 1, label='outputMessage'),
 			GlobalStiffnessTimeStepper(timestepSafetyCoefficient=0.7, label = "ts"),
+			PyRunner(command='sim.printState(4)', iterPeriod= 1, label='outputMessage'),
+			PyRunner(command='sim.printDt()', iterPeriod= 1, label='outputMessage'),
 			fluidCoupling, #to be called after timestepper
-			PyRunner(command='sim.printMessage()', iterPeriod= 1000, label='outputMessage'),
+			PyRunner(command='sim.printState(5)', iterPeriod= 1, label='outputMessage'),
+			PyRunner(command='sim.printDt()', iterPeriod= 1, label='outputMessage'),
+			PyRunner(command='sim.printMessage()', iterPeriod= 1, label='outputMessage'),
+			PyRunner(command='sim.printState(6)', iterPeriod= 1, label='outputMessage'),
 			newton,
-			VTKRecorder(fileName='yadep/3d-vtk-',recorders=['spheres'],iterPeriod=1000)
+			PyRunner(command='sim.printState(7)', iterPeriod= 1, label='outputMessage'),
+			VTKRecorder(fileName='yadep/3d-vtk-',recorders=['spheres'],iterPeriod=100),
+			PyRunner(command='sim.printState(8)', iterPeriod= 1, label='outputMessage')
 		]
 
 	def printMessage(self):
 		print("********************************YADE-ITER = " + str(O.iter) +" **********************************")
 		print("********************************YADE-TIME = " + str(O.time) +" **********************************")
 
+	def printState(self, n):
+		print('blaaaaa ' + str(n))
 
-
+	def printDt(self):
+		print(O.dt)
 
 	def irun(self,num):
 		O.run(num,1)
@@ -208,7 +227,9 @@ class simulation():
 
 if __name__=="__main__":
 	sim = simulation()
-	sim.irun(5000)
+	#sim.irun(5000)
+	#sim.irun(10000)
+	sim.irun(10)
 	fluidCoupling.killMPI()
 
 import builtins
